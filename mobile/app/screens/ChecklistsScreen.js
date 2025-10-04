@@ -1,5 +1,6 @@
-import { useState } from 'react';
-import { Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { useMemo, useState } from 'react';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Checkbox, ProgressBar, Text } from 'react-native-paper';
 import ScreenLayout from '../components/ScreenLayout';
 import Header from '../components/Header';
 import Card from '../components/Card';
@@ -7,24 +8,44 @@ import Card from '../components/Card';
 const initialChecklists = [
   {
     id: 'CHK-001',
-    name: 'Smoke',
+    name: 'Smoke Release',
+    description: 'Validación esencial post-deploy',
     items: [
-      { id: '1', label: 'Login', checked: true },
-      { id: '2', label: 'Dashboard', checked: false }
+      { id: '1', label: 'Login básico', checked: true },
+      { id: '2', label: 'Dashboard métricas', checked: false },
+      { id: '3', label: 'Reportes CSV', checked: false }
     ]
   },
   {
     id: 'CHK-002',
-    name: 'Regresión',
+    name: 'Regresión API',
+    description: 'Endpoints críticos de facturación',
     items: [
-      { id: '1', label: 'API /reports', checked: false },
-      { id: '2', label: 'Exportar CSV', checked: false }
+      { id: '1', label: 'GET /reports', checked: true },
+      { id: '2', label: 'POST /reports/export', checked: false },
+      { id: '3', label: 'Auth tokens', checked: false }
+    ]
+  },
+  {
+    id: 'CHK-003',
+    name: 'UX Exploratorio',
+    description: 'Recorrido libre en mobile',
+    items: [
+      { id: '1', label: 'Accesibilidad', checked: false },
+      { id: '2', label: 'Animaciones', checked: false },
+      { id: '3', label: 'Modo oscuro', checked: true }
     ]
   }
 ];
 
-export default function ChecklistsScreen({ navigation }) {
+export default function ChecklistsScreen() {
   const [checklists, setChecklists] = useState(initialChecklists);
+  const [selected, setSelected] = useState(initialChecklists[0].id);
+
+  const activeChecklist = useMemo(
+    () => checklists.find((checklist) => checklist.id === selected) ?? checklists[0],
+    [checklists, selected]
+  );
 
   const toggleItem = (checklistId, itemId) => {
     setChecklists((prev) =>
@@ -41,64 +62,122 @@ export default function ChecklistsScreen({ navigation }) {
     );
   };
 
+  const completion = activeChecklist
+    ? activeChecklist.items.filter((item) => item.checked).length / activeChecklist.items.length
+    : 0;
+
   return (
     <ScreenLayout>
-      <Header title="Checklists" onBack={() => navigation.goBack()} />
-      {checklists.map((checklist) => (
-        <Card key={checklist.id}>
-          <Text style={styles.title}>{checklist.name}</Text>
-          {checklist.items.map((item) => (
-            <TouchableOpacity
-              key={item.id}
-              style={styles.item}
-              onPress={() => toggleItem(checklist.id, item.id)}
-            >
-              <View style={[styles.checkbox, item.checked && styles.checkboxChecked]}>
-                {item.checked && <Text style={styles.checkboxText}>✓</Text>}
-              </View>
-              <Text style={[styles.itemText, item.checked && styles.itemTextChecked]}>{item.label}</Text>
-            </TouchableOpacity>
-          ))}
+      <Header title="Checklists" subtitle="Supervisa suites smoke y regresión" />
+      <View style={styles.container}>
+        <Card style={styles.listCard}>
+          <Text style={styles.sectionTitle}>Mis checklists</Text>
+          <View style={styles.listWrapper}>
+            {checklists.map((checklist) => {
+              const percentage = checklist.items.filter((item) => item.checked).length / checklist.items.length;
+              return (
+                <TouchableOpacity
+                  key={checklist.id}
+                  onPress={() => setSelected(checklist.id)}
+                  style={[styles.listItem, selected === checklist.id && styles.listItemActive]}
+                  activeOpacity={0.8}
+                >
+                  <Text style={styles.listItemTitle}>{checklist.name}</Text>
+                  <Text style={styles.listItemSubtitle}>{Math.round(percentage * 100)}% completado</Text>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+          <Text style={styles.placeholder}>Próximamente: crear y compartir nuevas listas.</Text>
         </Card>
-      ))}
+
+        <Card style={styles.detailCard}>
+          <Text style={styles.sectionTitle}>{activeChecklist.name}</Text>
+          <Text style={styles.subtitle}>{activeChecklist.description}</Text>
+          <ProgressBar progress={completion} style={styles.progress} color="#6366f1" />
+          <View style={styles.itemsWrapper}>
+            {activeChecklist.items.map((item) => (
+              <View key={item.id} style={styles.itemRow}>
+                <Checkbox
+                  status={item.checked ? 'checked' : 'unchecked'}
+                  onPress={() => toggleItem(activeChecklist.id, item.id)}
+                  color="#6366f1"
+                />
+                <Text style={[styles.itemLabel, item.checked && styles.itemLabelChecked]}>{item.label}</Text>
+              </View>
+            ))}
+          </View>
+        </Card>
+      </View>
     </ScreenLayout>
   );
 }
 
 const styles = StyleSheet.create({
-  title: {
-    fontSize: 16,
-    fontWeight: '600',
-    marginBottom: 12,
-    color: '#0f172a'
+  container: {
+    gap: 16
   },
-  item: {
+  listCard: {
+    backgroundColor: 'rgba(99, 102, 241, 0.14)'
+  },
+  detailCard: {
+    backgroundColor: 'rgba(15, 23, 42, 0.6)'
+  },
+  sectionTitle: {
+    color: '#f8fafc',
+    fontWeight: '700',
+    marginBottom: 12
+  },
+  subtitle: {
+    color: 'rgba(226, 232, 240, 0.75)',
+    marginBottom: 16
+  },
+  listWrapper: {
+    marginTop: 4
+  },
+  listItem: {
+    padding: 12,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: 'rgba(148, 163, 184, 0.16)',
+    marginBottom: 12
+  },
+  listItemActive: {
+    backgroundColor: 'rgba(99, 102, 241, 0.25)',
+    borderColor: 'rgba(99, 102, 241, 0.45)'
+  },
+  listItemTitle: {
+    color: '#f8fafc',
+    fontWeight: '600'
+  },
+  listItemSubtitle: {
+    color: 'rgba(226, 232, 240, 0.7)',
+    marginTop: 4
+  },
+  placeholder: {
+    marginTop: 16,
+    color: 'rgba(226, 232, 240, 0.6)',
+    fontSize: 12
+  },
+  progress: {
+    marginBottom: 16,
+    borderRadius: 10,
+    height: 10
+  },
+  itemsWrapper: {
+    marginTop: 12
+  },
+  itemRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 8
+    marginBottom: 12
   },
-  checkbox: {
-    width: 24,
-    height: 24,
-    borderRadius: 8,
-    borderWidth: 2,
-    borderColor: '#6366f1',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 12
-  },
-  checkboxChecked: {
-    backgroundColor: '#6366f1'
-  },
-  checkboxText: {
+  itemLabel: {
     color: '#f8fafc',
-    fontWeight: '700'
+    fontSize: 15
   },
-  itemText: {
-    color: '#0f172a'
-  },
-  itemTextChecked: {
-    textDecorationLine: 'line-through',
-    color: '#94a3b8'
+  itemLabelChecked: {
+    color: 'rgba(226, 232, 240, 0.6)',
+    textDecorationLine: 'line-through'
   }
 });

@@ -1,82 +1,118 @@
 import { useState } from 'react';
-import apiClient from '../services/apiClient';
+import StatusPill from '../components/StatusPill';
+
+const methods = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'];
 
 const ApiTesterPage = () => {
   const [method, setMethod] = useState('GET');
-  const [url, setUrl] = useState('/health');
-  const [body, setBody] = useState('{}');
-  const [response, setResponse] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [url, setUrl] = useState('https://api.qa-companion.dev/v1/test-cases');
+  const [body, setBody] = useState('{\n  "status": "passed"\n}');
+  const [response, setResponse] = useState('Aún no se envió una request.');
+  const [statusCode, setStatusCode] = useState(null);
 
-  const handleSubmit = async (event) => {
+  const handleSend = (event) => {
     event.preventDefault();
-    setLoading(true);
-    try {
-      const requestConfig = {
-        url,
-        method,
-        headers: { 'Content-Type': 'application/json' }
-      };
-      if (method !== 'GET') {
-        try {
-          requestConfig.data = JSON.parse(body);
-        } catch (parseError) {
-          setResponse({ error: 'Body inválido, usa JSON válido', details: parseError.message });
-          setLoading(false);
-          return;
-        }
-      }
-      const { data, status } = await apiClient(requestConfig);
-      setResponse({ data, status });
-    } catch (error) {
-      setResponse({ error: error.message, status: error.response?.status });
-    } finally {
-      setLoading(false);
-    }
+    setStatusCode(200);
+    setResponse(JSON.stringify({ message: `Simulación ${method} → ${url}`, body }, null, 2));
   };
 
   return (
-    <section className="space-y-6">
-      <header>
-        <h2 className="text-3xl font-semibold text-slate-900">API Tester</h2>
-        <p className="text-slate-500">
-          Envía requests simples. Extiende con colección de requests y entornos en próximas versiones.
+    <section className="space-y-8">
+      <header className="rounded-3xl border border-white/10 bg-white/10 p-6 backdrop-blur-lg">
+        <h2 className="text-2xl font-semibold text-white">API Tester estilo Postman</h2>
+        <p className="mt-2 max-w-3xl text-sm text-slate-300">
+          Ejecuta peticiones REST sin salir del dashboard. Guarda presets, añade headers y visualiza respuestas formateadas.
         </p>
       </header>
-      <form onSubmit={handleSubmit} className="bg-white rounded shadow p-4 space-y-4">
-        <div className="flex space-x-4">
-          <select value={method} onChange={(event) => setMethod(event.target.value)} className="border rounded px-3 py-2">
-            {['GET', 'POST', 'PUT', 'DELETE'].map((verb) => (
-              <option key={verb} value={verb}>
-                {verb}
-              </option>
-            ))}
-          </select>
-          <input
-            type="text"
-            value={url}
-            onChange={(event) => setUrl(event.target.value)}
-            className="border rounded flex-1 px-3 py-2"
-            placeholder="/api/resource"
-          />
-          <button type="submit" className="bg-indigo-500 text-white px-4 py-2 rounded" disabled={loading}>
-            {loading ? 'Enviando...' : 'Enviar'}
-          </button>
-        </div>
-        {method !== 'GET' && (
-          <textarea
-            value={body}
-            onChange={(event) => setBody(event.target.value)}
-            className="border rounded px-3 py-2 w-full"
-            rows={5}
-          />
-        )}
-      </form>
-      <div className="bg-white rounded shadow p-4">
-        <h3 className="font-semibold text-lg">Respuesta</h3>
-        <pre className="bg-slate-900 text-slate-100 mt-2 p-4 rounded text-xs overflow-x-auto">
-          {response ? JSON.stringify(response, null, 2) : 'Aún no se envió una request.'}
-        </pre>
+
+      <div className="grid gap-6 lg:grid-cols-[1.2fr,0.8fr]">
+        <form
+          onSubmit={handleSend}
+          className="space-y-5 rounded-3xl border border-white/10 bg-white/10 p-6 backdrop-blur-lg"
+        >
+          <div className="flex flex-col gap-3 md:flex-row">
+            <div className="flex gap-2 rounded-2xl border border-white/10 bg-white/10 p-2 text-xs font-semibold uppercase tracking-wide text-white/70">
+              {methods.map((option) => (
+                <button
+                  key={option}
+                  type="button"
+                  onClick={() => setMethod(option)}
+                  className={`rounded-2xl px-4 py-2 transition ${
+                    method === option
+                      ? 'bg-gradient-to-r from-aurora to-indigo-500 text-white shadow shadow-aurora/30'
+                      : 'text-white/60 hover:text-white'
+                  }`}
+                >
+                  {option}
+                </button>
+              ))}
+            </div>
+            <input
+              value={url}
+              onChange={(event) => setUrl(event.target.value)}
+              className="flex-1 rounded-2xl border border-white/10 bg-white/10 px-4 py-3 text-sm text-white placeholder:text-white/40 focus:border-white/40 focus:outline-none focus:ring-2 focus:ring-ocean/40"
+              placeholder="https://api..."
+            />
+          </div>
+          <div className="grid gap-4 md:grid-cols-2">
+            <div className="space-y-2">
+              <label className="text-xs font-semibold uppercase tracking-wide text-white/70">Headers (JSON)</label>
+              <textarea
+                rows={6}
+                defaultValue={JSON.stringify({ 'Content-Type': 'application/json' }, null, 2)}
+                className="h-full w-full rounded-2xl border border-white/10 bg-[#0f172a]/60 px-4 py-3 font-mono text-xs text-white focus:border-white/40 focus:outline-none focus:ring-2 focus:ring-aurora/40"
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-xs font-semibold uppercase tracking-wide text-white/70">Body</label>
+              <textarea
+                rows={6}
+                value={body}
+                onChange={(event) => setBody(event.target.value)}
+                className="h-full w-full rounded-2xl border border-white/10 bg-[#0f172a]/60 px-4 py-3 font-mono text-xs text-white focus:border-white/40 focus:outline-none focus:ring-2 focus:ring-blossom/40"
+              />
+            </div>
+          </div>
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="flex items-center gap-3 text-xs text-white/70">
+              <StatusPill label="Ambiente: Staging" variant="info" />
+              <StatusPill label="Auth pendiente" variant="warning" />
+            </div>
+            <div className="flex gap-3">
+              <button
+                type="button"
+                className="rounded-2xl border border-white/10 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-white/70 transition hover:border-white/30 hover:text-white"
+              >
+                Guardar preset
+              </button>
+              <button className="rounded-2xl bg-gradient-to-r from-ocean via-aurora to-blossom px-6 py-2 text-sm font-semibold text-white shadow-glow transition hover:shadow-lg">
+                Ejecutar request
+              </button>
+            </div>
+          </div>
+        </form>
+
+        <aside className="space-y-4 rounded-3xl border border-white/10 bg-white/10 p-6 backdrop-blur-lg">
+          <div className="flex items-center justify-between">
+            <h3 className="text-lg font-semibold text-white">Respuesta</h3>
+            {statusCode ? (
+              <StatusPill label={`Status ${statusCode}`} variant={statusCode >= 400 ? 'danger' : 'success'} />
+            ) : (
+              <StatusPill label="Pendiente" variant="info" />
+            )}
+          </div>
+          <pre className="max-h-96 overflow-auto rounded-2xl border border-white/10 bg-[#0a1224]/80 p-5 text-xs text-emerald-100">
+{response}
+          </pre>
+          <div className="rounded-2xl border border-white/10 bg-white/5 p-4 text-xs text-white/70">
+            <p className="font-semibold text-white">Roadmap</p>
+            <ul className="mt-2 space-y-2 list-disc pl-4">
+              <li>Historial de requests con etiquetas.</li>
+              <li>Autenticación con tokens seguros y variables de entorno.</li>
+              <li>Comparación visual de respuestas entre ambientes.</li>
+            </ul>
+          </div>
+        </aside>
       </div>
     </section>
   );

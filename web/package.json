@@ -10,6 +10,7 @@
     "lint": "echo 'Add linter configuration (e.g., ESLint) in future iterations'"
   },
   "dependencies": {
+    "@heroicons/react": "^2.1.3",
     "axios": "^1.6.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",

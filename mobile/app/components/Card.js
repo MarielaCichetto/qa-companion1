@@ -1,19 +1,21 @@
-import { View, StyleSheet } from 'react-native';
+import { Surface } from 'react-native-paper';
+import { StyleSheet } from 'react-native';
 
-export default function Card({ children }) {
-  return <View style={styles.card}>{children}</View>;
+export default function Card({ children, style }) {
+  return (
+    <Surface style={[styles.card, style]} elevation={2}>
+      {children}
+    </Surface>
+  );
 }
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: '#ffffff',
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 12,
-    shadowColor: '#000',
-    shadowOpacity: 0.05,
-    shadowOffset: { width: 0, height: 4 },
-    shadowRadius: 8,
-    elevation: 2
+    borderRadius: 20,
+    padding: 20,
+    marginBottom: 16,
+    backgroundColor: 'rgba(15, 23, 42, 0.6)',
+    borderWidth: 1,
+    borderColor: 'rgba(148, 163, 184, 0.12)'
   }
 });

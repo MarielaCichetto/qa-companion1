@@ -1,87 +1,140 @@
 import { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+import { View, StyleSheet } from 'react-native';
+import { Button, Text, TextInput } from 'react-native-paper';
 
 export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
   const handleLogin = () => {
-    // TODO: Integrate secure auth flow (biometric, OAuth) in future iterations.
-    navigation.replace('Dashboard');
+    navigation.replace('Main');
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.card}>
-        <Text style={styles.title}>QA Companion</Text>
-        <Text style={styles.subtitle}>Gestiona tus pruebas en un solo lugar.</Text>
-        <TextInput
-          value={email}
-          onChangeText={setEmail}
-          placeholder="Email"
-          placeholderTextColor="#94a3b8"
-          style={styles.input}
-          keyboardType="email-address"
-        />
-        <TextInput
-          value={password}
-          onChangeText={setPassword}
-          placeholder="Password"
-          placeholderTextColor="#94a3b8"
-          style={styles.input}
-          secureTextEntry
-        />
-        <TouchableOpacity style={styles.button} onPress={handleLogin}>
-          <Text style={styles.buttonText}>Ingresar</Text>
-        </TouchableOpacity>
-        <Text style={styles.helper}>* Implementar recuperación de contraseña en futuras versiones.</Text>
+    <LinearGradient colors={['#0b1120', '#1e1b4b']} style={styles.gradient}>
+      <View style={styles.container}>
+        <View style={styles.hero}>
+          <Text variant="headlineMedium" style={styles.heroTitle}>
+            QA Companion
+          </Text>
+          <Text variant="bodyMedium" style={styles.heroSubtitle}>
+            Controla tus suites de pruebas, reportes y métricas desde un solo lugar con una interfaz moderna.
+          </Text>
+          <View style={styles.decorative}>
+            <View style={styles.pill} />
+            <View style={[styles.pill, styles.pillAlt]} />
+          </View>
+        </View>
+        <View style={styles.card}>
+          <Text variant="titleLarge" style={styles.title}>
+            Bienvenido de nuevo
+          </Text>
+          <Text variant="bodySmall" style={styles.subtitle}>
+            Ingresa tus credenciales corporativas para acceder al hub de QA.
+          </Text>
+          <TextInput
+            label="Email"
+            mode="outlined"
+            value={email}
+            onChangeText={setEmail}
+            keyboardType="email-address"
+            style={styles.input}
+            autoCapitalize="none"
+            outlineStyle={styles.inputOutline}
+          />
+          <TextInput
+            label="Password"
+            mode="outlined"
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry
+            style={styles.input}
+            outlineStyle={styles.inputOutline}
+          />
+          <Button mode="contained" onPress={handleLogin} style={styles.button} contentStyle={{ paddingVertical: 8 }}>
+            Ingresar al dashboard
+          </Button>
+          <Text variant="bodySmall" style={styles.helper}>
+            Próximo paso: habilitar biometría y Single Sign-On para acceso corporativo.
+          </Text>
+        </View>
       </View>
-    </View>
+    </LinearGradient>
   );
 }
 
 const styles = StyleSheet.create({
+  gradient: {
+    flex: 1
+  },
   container: {
     flex: 1,
-    backgroundColor: '#0f172a',
-    justifyContent: 'center',
-    padding: 24
+    flexDirection: 'column',
+    padding: 24,
+    justifyContent: 'center'
+  },
+  hero: {
+    borderRadius: 28,
+    borderWidth: 1,
+    borderColor: 'rgba(148, 163, 184, 0.16)',
+    padding: 24,
+    backgroundColor: 'rgba(15, 23, 42, 0.55)',
+    marginBottom: 24
+  },
+  heroTitle: {
+    color: '#f8fafc',
+    fontWeight: '700'
+  },
+  heroSubtitle: {
+    marginTop: 8,
+    color: 'rgba(226, 232, 240, 0.75)'
+  },
+  decorative: {
+    marginTop: 24,
+    flexDirection: 'row'
+  },
+  pill: {
+    height: 32,
+    flex: 1,
+    borderRadius: 999,
+    backgroundColor: 'rgba(99, 102, 241, 0.25)',
+    marginRight: 12
+  },
+  pillAlt: {
+    backgroundColor: 'rgba(14, 165, 233, 0.25)',
+    marginRight: 0
   },
   card: {
-    backgroundColor: '#1e293b',
-    borderRadius: 16,
+    borderRadius: 28,
+    borderWidth: 1,
+    borderColor: 'rgba(148, 163, 184, 0.16)',
+    backgroundColor: 'rgba(15, 23, 42, 0.8)',
     padding: 24
   },
   title: {
-    fontSize: 28,
-    fontWeight: '700',
-    color: '#f8fafc'
+    color: '#f8fafc',
+    fontWeight: '700'
   },
   subtitle: {
-    fontSize: 14,
-    color: '#cbd5f5',
+    color: 'rgba(226, 232, 240, 0.75)',
     marginBottom: 16
   },
   input: {
-    backgroundColor: '#334155',
-    color: '#f8fafc',
-    borderRadius: 12,
-    padding: 12,
-    marginBottom: 12
+    marginBottom: 16,
+    backgroundColor: 'rgba(15, 23, 42, 0.8)'
+  },
+  inputOutline: {
+    borderRadius: 16,
+    borderColor: 'rgba(99, 102, 241, 0.35)'
   },
   button: {
+    borderRadius: 18,
     backgroundColor: '#6366f1',
-    borderRadius: 12,
-    paddingVertical: 12,
-    alignItems: 'center'
-  },
-  buttonText: {
-    color: '#f8fafc',
-    fontWeight: '600'
+    marginTop: 8
   },
   helper: {
-    color: '#94a3b8',
-    fontSize: 12,
-    marginTop: 12
+    color: 'rgba(226, 232, 240, 0.65)',
+    marginTop: 16
   }
 });
