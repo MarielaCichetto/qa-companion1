@@ -1,14 +1,16 @@
 import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
-import { Button, HelperText, Text, TextInput } from 'react-native-paper';
+import { HelperText, Snackbar, Text, TextInput } from 'react-native-paper';
 import ScreenLayout from '../components/ScreenLayout';
 import Header from '../components/Header';
 import Card from '../components/Card';
 import { bugsSeed } from '../data/bugs';
+import PrimaryButton from '../components/PrimaryButton';
 
 export default function BugsScreen() {
   const [bugs, setBugs] = useState(bugsSeed);
   const [draft, setDraft] = useState({ title: '', severity: 'Medium', priority: 'P3', description: '' });
+  const [snackbar, setSnackbar] = useState({ visible: false, message: '' });
 
   const handleCreate = () => {
     if (!draft.title.trim()) return;
@@ -20,6 +22,7 @@ export default function BugsScreen() {
       ...prev
     ]);
     setDraft({ title: '', severity: 'Medium', priority: 'P3', description: '' });
+    setSnackbar({ visible: true, message: 'Bug registrado con estilo 🎯' });
   };
 
   return (
@@ -65,9 +68,9 @@ export default function BugsScreen() {
           style={styles.input}
           outlineStyle={styles.outline}
         />
-        <Button mode="contained" onPress={handleCreate} style={styles.button} contentStyle={{ paddingVertical: 6 }}>
+        <PrimaryButton onPress={handleCreate} style={styles.button}>
           Registrar bug
-        </Button>
+        </PrimaryButton>
         <HelperText type="info" style={styles.helper}>
           Próximamente: adjuntar evidencias, asignar responsables y sincronizar con Jira.
         </HelperText>
@@ -93,6 +96,15 @@ export default function BugsScreen() {
           <Text style={styles.bugDescription}>{bug.description}</Text>
         </Card>
       ))}
+      <Snackbar
+        visible={snackbar.visible}
+        onDismiss={() => setSnackbar((prev) => ({ ...prev, visible: false }))}
+        duration={2500}
+        style={styles.snackbar}
+        action={{ label: 'Ok', onPress: () => setSnackbar((prev) => ({ ...prev, visible: false })) }}
+      >
+        {snackbar.message}
+      </Snackbar>
     </ScreenLayout>
   );
 }
@@ -122,12 +134,11 @@ const styles = StyleSheet.create({
   halfLast: {
     marginRight: 0
   },
-  button: {
-    borderRadius: 16,
-    backgroundColor: '#a855f7'
-  },
   helper: {
     color: 'rgba(226, 232, 240, 0.7)'
+  },
+  button: {
+    marginTop: 8
   },
   bugHeader: {
     flexDirection: 'row',
@@ -162,5 +173,10 @@ const styles = StyleSheet.create({
   },
   bugDescription: {
     color: 'rgba(226, 232, 240, 0.85)'
+  },
+  snackbar: {
+    backgroundColor: 'rgba(15, 23, 42, 0.96)',
+    borderRadius: 18,
+    marginHorizontal: 16
   }
 });

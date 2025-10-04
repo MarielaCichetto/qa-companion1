@@ -1,13 +1,6 @@
 import { NavLink } from 'react-router-dom';
-import {
-  Squares2x2Icon,
-  ClipboardDocumentCheckIcon,
-  BugAntIcon,
-  ClipboardDocumentListIcon,
-  CloudArrowUpIcon,
-  CircleStackIcon,
-  ChartBarIcon
-} from '@heroicons/react/24/outline';
+import { navigationItems } from '../config/navigation';
+import { getNavigationIcon } from '../config/navigationIcons';
 
 const accentStyles = {
   indigo: {
@@ -42,16 +35,6 @@ const accentStyles = {
   }
 };
 
-const links = [
-  { to: '/dashboard', label: 'Dashboard', icon: Squares2x2Icon, accent: 'indigo' },
-  { to: '/test-cases', label: 'Casos de Prueba', icon: ClipboardDocumentCheckIcon, accent: 'violet' },
-  { to: '/bugs', label: 'Bugs', icon: BugAntIcon, accent: 'rose' },
-  { to: '/checklists', label: 'Checklists', icon: ClipboardDocumentListIcon, accent: 'emerald' },
-  { to: '/api-tester', label: 'API Tester', icon: CloudArrowUpIcon, accent: 'cyan' },
-  { to: '/sql-queries', label: 'SQL Queries', icon: CircleStackIcon, accent: 'amber' },
-  { to: '/reports', label: 'Reportes', icon: ChartBarIcon, accent: 'indigo' }
-];
-
 const Sidebar = () => (
   <aside className="hidden w-72 shrink-0 flex-col justify-between border-r border-white/5 bg-gradient-to-b from-midnight via-[#0f1a33] to-twilight px-6 py-8 lg:flex">
     <div>
@@ -65,8 +48,8 @@ const Sidebar = () => (
         </div>
       </div>
       <nav className="space-y-2 text-sm">
-        {links.map((link) => {
-          const Icon = link.icon;
+        {navigationItems.map((link) => {
+          const Icon = getNavigationIcon(link.key);
           const accent = accentStyles[link.accent] ?? accentStyles.indigo;
           return (
             <NavLink
@@ -89,7 +72,7 @@ const Sidebar = () => (
                   <div className="flex flex-1 flex-col">
                     <span className="text-base font-semibold">{link.label}</span>
                     <span className="text-xs uppercase tracking-wide text-slate-400 group-hover:text-slate-200">
-                      {link.label === 'Reportes' ? 'Insights y exportación' : 'Gestión y seguimiento'}
+                      {link.description}
                     </span>
                   </div>
                   <span

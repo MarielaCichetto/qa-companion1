@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { LinearGradient } from 'expo-linear-gradient';
 import { View, StyleSheet } from 'react-native';
-import { Button, Text, TextInput } from 'react-native-paper';
+import { Text, TextInput } from 'react-native-paper';
+import PrimaryButton from '../components/PrimaryButton';
 
 export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState('');
@@ -52,9 +53,9 @@ export default function LoginScreen({ navigation }) {
             style={styles.input}
             outlineStyle={styles.inputOutline}
           />
-          <Button mode="contained" onPress={handleLogin} style={styles.button} contentStyle={{ paddingVertical: 8 }}>
+          <PrimaryButton onPress={handleLogin} style={styles.button}>
             Ingresar al dashboard
-          </Button>
+          </PrimaryButton>
           <Text variant="bodySmall" style={styles.helper}>
             Próximo paso: habilitar biometría y Single Sign-On para acceso corporativo.
           </Text>

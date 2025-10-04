@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
-import { Button, Chip, DataTable, Text } from 'react-native-paper';
+import { Button, Chip, DataTable, FAB, Portal, Snackbar, Text } from 'react-native-paper';
 import ScreenLayout from '../components/ScreenLayout';
 import Header from '../components/Header';
 import Card from '../components/Card';
 import { testCasesSeed } from '../data/testCases';
+import PrimaryButton from '../components/PrimaryButton';
 
 const statuses = ['Passed', 'Failed', 'Blocked'];
 
@@ -17,11 +18,13 @@ const statusStyles = {
 export default function TestCasesScreen({ navigation }) {
   const [testCases, setTestCases] = useState(testCasesSeed);
   const [filter, setFilter] = useState('Todos');
+  const [snackbar, setSnackbar] = useState({ visible: false, message: '' });
 
   const filteredCases = testCases.filter((testCase) => filter === 'Todos' || testCase.status === filter);
 
   const updateStatus = (id, status) => {
     setTestCases((prev) => prev.map((tc) => (tc.id === id ? { ...tc, status } : tc)));
+    setSnackbar({ visible: true, message: `Estado actualizado a ${status}` });
   };
 
   return (
@@ -90,6 +93,34 @@ export default function TestCasesScreen({ navigation }) {
           ))}
         </DataTable>
       </Card>
+      <Card style={styles.ctaCard}>
+        <Text variant="titleMedium" style={styles.sectionTitle}>
+          ¿Necesitas un nuevo caso?
+        </Text>
+        <Text style={styles.helperText}>
+          Mantén la consistencia creando templates reutilizables y sincroniza con tu backend cuando esté disponible.
+        </Text>
+        <PrimaryButton icon="plus" onPress={() => setSnackbar({ visible: true, message: 'Plantilla de test próximamente' })}>
+          Crear desde plantilla
+        </PrimaryButton>
+      </Card>
+      <Portal>
+        <FAB
+          icon="check-decagram-outline"
+          style={styles.fab}
+          color="#f8fafc"
+          onPress={() => setSnackbar({ visible: true, message: 'Checklist rápida en progreso' })}
+        />
+        <Snackbar
+          visible={snackbar.visible}
+          onDismiss={() => setSnackbar((prev) => ({ ...prev, visible: false }))}
+          duration={2200}
+          style={styles.snackbar}
+          action={{ label: 'Cerrar', onPress: () => setSnackbar((prev) => ({ ...prev, visible: false })) }}
+        >
+          {snackbar.message}
+        </Snackbar>
+      </Portal>
     </ScreenLayout>
   );
 }
@@ -168,5 +199,24 @@ const styles = StyleSheet.create({
   statusButtonLabel: {
     fontSize: 10,
     letterSpacing: 0.5
+  },
+  ctaCard: {
+    backgroundColor: 'rgba(99, 102, 241, 0.12)'
+  },
+  helperText: {
+    color: 'rgba(226, 232, 240, 0.78)',
+    marginBottom: 12
+  },
+  fab: {
+    position: 'absolute',
+    right: 24,
+    bottom: 96,
+    backgroundColor: '#6366f1'
+  },
+  snackbar: {
+    backgroundColor: 'rgba(15, 23, 42, 0.95)',
+    marginBottom: 24,
+    marginHorizontal: 16,
+    borderRadius: 16
   }
 });

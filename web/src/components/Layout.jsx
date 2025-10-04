@@ -1,9 +1,10 @@
 import Sidebar from './Sidebar';
+import MobileNav from './MobileNav';
 
 const Layout = ({ children }) => (
   <div className="flex min-h-screen bg-midnight">
     <Sidebar />
-    <main className="relative flex-1 overflow-y-auto bg-transparent">
+    <main className="relative flex-1 overflow-y-auto bg-transparent pb-28 lg:pb-0">
       <div
         className="pointer-events-none absolute inset-x-10 top-10 hidden h-72 rounded-3xl bg-gradient-to-r from-aurora/40 via-blossom/40 to-ocean/40 blur-3xl lg:block"
         aria-hidden
@@ -38,6 +39,7 @@ const Layout = ({ children }) => (
         </header>
         <div className="mt-10 space-y-10 lg:space-y-12">{children}</div>
       </div>
+      <MobileNav />
     </main>
   </div>
 );

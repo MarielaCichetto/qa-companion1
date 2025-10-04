@@ -5,6 +5,7 @@ import Header from '../components/Header';
 import Card from '../components/Card';
 import { testCasesSeed } from '../data/testCases';
 import { bugsSeed } from '../data/bugs';
+import PrimaryButton from '../components/PrimaryButton';
 
 const quickActions = [
   { label: 'Casos de Prueba', screen: 'TestCases', icon: 'clipboard-text-outline' },
@@ -36,6 +37,14 @@ export default function DashboardScreen({ navigation }) {
                 {bugsSeed.filter((bug) => bug.severity === 'High').length} bugs críticos
               </Chip>
             </View>
+            <PrimaryButton
+              icon="play-circle-outline"
+              onPress={() => navigation.navigate('TestCases')}
+              style={styles.heroButton}
+              labelStyle={{ fontSize: 13 }}
+            >
+              Iniciar ejecución guiada
+            </PrimaryButton>
           </View>
           <Avatar.Icon size={72} icon="rocket-launch-outline" style={styles.heroAvatar} color="#f8fafc" />
         </View>
@@ -145,6 +154,9 @@ const styles = StyleSheet.create({
   heroChipText: {
     color: 'rgba(226, 232, 240, 0.85)',
     fontWeight: '600'
+  },
+  heroButton: {
+    marginTop: 18
   },
   heroAvatar: {
     backgroundColor: 'rgba(88, 28, 135, 0.35)',

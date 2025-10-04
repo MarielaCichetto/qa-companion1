@@ -5,7 +5,23 @@
 @tailwind utilities;
 
 body {
-  @apply bg-midnight text-slate-100 font-sans;
+  @apply bg-midnight text-slate-100 font-sans antialiased;
+  background-image: radial-gradient(circle at top left, rgba(99, 102, 241, 0.35), transparent 45%),
+    radial-gradient(circle at bottom right, rgba(14, 165, 233, 0.25), transparent 40%),
+    linear-gradient(180deg, rgba(11, 17, 32, 0.95) 0%, rgba(11, 17, 32, 1) 100%);
+  min-height: 100vh;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(circle at 20% 20%, rgba(168, 85, 247, 0.2), transparent 45%),
+    radial-gradient(circle at 80% 0%, rgba(34, 211, 238, 0.2), transparent 40%);
+  filter: blur(120px);
+  opacity: 0.8;
+  z-index: -1;
 }
 
 ::selection {
