@@ -1,33 +1,26 @@
-import { getDb } from '../models/database.js';
+import { getConnection } from '../services/database.js';
 
-export const listTestCases = async (_req, res) => {
-  const db = await getDb();
-  const items = await db.all('SELECT * FROM test_cases ORDER BY id ASC');
-  res.json(items);
+export const listTestCases = (req, res) => {
+  const db = getConnection();
+  db.all('SELECT * FROM test_cases', (err, rows) => {
+    db.close();
+    if (err) {
+      return res.status(500).json({ error: err.message });
+    }
+    res.json(rows);
+  });
 };
 
-export const createTestCase = async (req, res) => {
-  const db = await getDb();
-  const { id, title, status, testSet, userStory } = req.body;
-  await db.run(
-    'INSERT OR REPLACE INTO test_cases (id, title, status, testSet, userStory) VALUES (?, ?, ?, ?, ?)',
-    [id, title, status, testSet, userStory]
-  );
-  res.status(201).json({ id, title, status, testSet, userStory });
-};
-
-export const updateTestCase = async (req, res) => {
-  const db = await getDb();
-  const { title, status, testSet, userStory } = req.body;
-  await db.run(
-    'UPDATE test_cases SET title = ?, status = ?, testSet = ?, userStory = ? WHERE id = ?',
-    [title, status, testSet, userStory, req.params.id]
-  );
-  res.json({ id: req.params.id, title, status, testSet, userStory });
-};
-
-export const deleteTestCase = async (req, res) => {
-  const db = await getDb();
-  await db.run('DELETE FROM test_cases WHERE id = ?', req.params.id);
-  res.status(204).end();
+export const createTestCase = (req, res) => {
+  const { id, title, status, test_set, user_story, expected_result } = req.body;
+  const db = getConnection();
+  const stmt = db.prepare('INSERT INTO test_cases VALUES (?, ?, ?, ?, ?, ?)');
+  stmt.run([id, title, status, test_set, user_story, expected_result], (err) => {
+    stmt.finalize();
+    db.close();
+    if (err) {
+      return res.status(500).json({ error: err.message });
+    }
+    res.status(201).json({ id, title, status, test_set, user_story, expected_result });
+  });
 };

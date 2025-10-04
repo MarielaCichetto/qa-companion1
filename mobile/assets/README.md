@@ -1,3 +1,1 @@
-# Assets placeholder
-
-Add app icon and splash screen assets in future iterations.
+Coloca aquí los íconos y splash screens personalizados del proyecto.
