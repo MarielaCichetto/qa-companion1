@@ -1,0 +1,40 @@
+{
+  "name": "qa-companion-web",
+  "version": "0.2.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "lint": "echo 'Add linter configuration (e.g., ESLint) in future iterations'"
+  },
+  "dependencies": {
+    "@headlessui/react": "^2.1.7",
+    "@heroicons/react": "^2.1.3",
+    "axios": "^1.6.0",
+    "clsx": "^2.1.0",
+    "dayjs": "^1.11.10",
+    "framer-motion": "^11.0.17",
+    "jspdf": "^2.5.1",
+    "nanoid": "^5.0.7",
+    "react": "^18.2.0",
+    "react-beautiful-dnd": "^13.1.1",
+    "react-csv": "^2.2.2",
+    "react-dom": "^18.2.0",
+    "react-hook-form": "^7.48.0",
+    "react-hot-toast": "^2.4.1",
+    "react-router-dom": "^6.22.1",
+    "recharts": "^2.9.0",
+    "zustand": "^4.5.2"
+  },
+  "devDependencies": {
+    "@tailwindcss/forms": "^0.5.7",
+    "@tailwindcss/typography": "^0.5.10",
+    "@vitejs/plugin-react": "^4.2.0",
+    "autoprefixer": "^10.4.16",
+    "postcss": "^8.4.35",
+    "tailwindcss": "^3.3.0",
+    "vite": "^5.0.0"
+  }
+}
