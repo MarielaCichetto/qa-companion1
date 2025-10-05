@@ -1,10 +1,12 @@
 import { useEffect } from 'react';
+import { Outlet } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import Sidebar from './Sidebar';
 import MobileNav from './MobileNav';
 import ThemeToggle from './ThemeToggle';
 import { useQAStore } from '../store/useQAStore';
 import { useThemeStore } from '../store/useThemeStore';
+import { useTranslation } from '../hooks/useTranslation';
 
 const SkeletonShell = () => (
   <div className="space-y-8">
@@ -27,6 +29,7 @@ const SkeletonShell = () => (
 const Layout = ({ children }) => {
   const { loading, initialize } = useQAStore((state) => ({ loading: state.loading, initialize: state.initialize }));
   const theme = useThemeStore((state) => state.theme);
+  const { t } = useTranslation();
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -35,6 +38,8 @@ const Layout = ({ children }) => {
 
     return () => clearTimeout(timer);
   }, [initialize]);
+
+  const renderedContent = loading ? <SkeletonShell /> : children ?? <Outlet />;
 
   return (
     <div className={`flex min-h-screen ${theme === 'light' ? 'bg-slate-100 text-slate-900' : 'bg-carbon text-slate-100'}`}>
@@ -48,13 +53,19 @@ const Layout = ({ children }) => {
             transition={{ duration: 0.6 }}
             className="glass-panel flex flex-col gap-6 border-white/10 bg-white/10 text-slate-100 backdrop-blur-xl sm:flex-row sm:items-center sm:justify-between"
           >
-            <div>
-              <p className="text-xs uppercase tracking-[0.35em] text-cobalt">QA Companion</p>
-              <h1 className="mt-3 text-3xl font-semibold text-white sm:text-4xl">Mission Control Center</h1>
-              <p className="mt-2 max-w-xl text-sm text-slate-300">
-                Monitorea tu pipeline QA, orquesta test cases y convierte datos en decisiones rápidas con una interfaz diseñada
-                para squads de alto rendimiento.
-              </p>
+            <div className="flex items-start gap-4">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-cobalt via-magenta to-neon text-lg font-semibold text-white shadow-glow">
+                QA
+              </div>
+              <div>
+                <p className="text-xs uppercase tracking-[0.35em] text-cobalt">{t('QA Companion')}</p>
+                <h1 className="mt-3 text-3xl font-semibold text-white sm:text-4xl">{t('Mission Control Center')}</h1>
+                <p className="mt-2 max-w-xl text-sm text-slate-300">
+                  {t(
+                    'Monitorea tu pipeline QA, orquesta test cases y convierte datos en decisiones rápidas con una interfaz diseñada para squads de alto rendimiento.'
+                  )}
+                </p>
+              </div>
             </div>
             <div className="flex w-full flex-col items-stretch gap-3 sm:w-auto sm:items-end">
               <ThemeToggle />
@@ -63,12 +74,12 @@ const Layout = ({ children }) => {
                 whileTap={{ scale: 0.98 }}
                 className="flex items-center justify-center gap-3 rounded-2xl bg-gradient-to-r from-cobalt via-magenta to-neon px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-cobalt/30"
               >
-                Generar reporte instantáneo
-                <span className="rounded-full bg-white/20 px-3 py-1 text-xs font-medium text-white/90">PDF & CSV</span>
+                {t('Generar reporte instantáneo')}
+                <span className="rounded-full bg-white/20 px-3 py-1 text-xs font-medium text-white/90">PDF &amp; CSV</span>
               </motion.button>
             </div>
           </motion.header>
-          <div className="mt-10 space-y-10 lg:space-y-12">{loading ? <SkeletonShell /> : children}</div>
+          <div className="mt-10 space-y-10 lg:space-y-12">{renderedContent}</div>
         </div>
         <MobileNav />
       </main>

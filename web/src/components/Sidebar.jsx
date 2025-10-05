@@ -1,6 +1,7 @@
 import { NavLink } from 'react-router-dom';
 import { navigationItems } from '../config/navigation';
 import { getNavigationIcon } from '../config/navigationIcons';
+import { useTranslation } from '../hooks/useTranslation';
 
 const accentStyles = {
   cobalt: {
@@ -35,21 +36,24 @@ const accentStyles = {
   }
 };
 
-const Sidebar = () => (
-  <aside className="hidden w-72 shrink-0 flex-col justify-between border-r border-white/10 bg-gradient-to-b from-carbon via-carbonLight/90 to-obsidian px-6 py-8 text-sm text-slate-300 shadow-inner shadow-black/40 lg:flex">
-    <div>
-      <div className="mb-10 flex items-center gap-3">
-        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-cobalt via-magenta to-neon text-lg font-semibold text-white shadow-glow">
-          QA
+const Sidebar = () => {
+  const { t } = useTranslation();
+
+  return (
+    <aside className="hidden w-72 shrink-0 flex-col justify-between border-r border-white/10 bg-gradient-to-b from-carbon via-carbonLight/90 to-obsidian px-6 py-8 text-sm text-slate-300 shadow-inner shadow-black/40 lg:flex">
+      <div>
+        <div className="mb-10 flex items-center gap-3">
+          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-cobalt via-magenta to-neon text-lg font-semibold text-white shadow-glow">
+            QA
+          </div>
+          <div>
+            <p className="text-xs uppercase tracking-[0.35em] text-slate-500">{t('Companion')}</p>
+            <p className="text-lg font-semibold text-white">{t('Mission Control')}</p>
+          </div>
         </div>
-        <div>
-          <p className="text-xs uppercase tracking-[0.35em] text-slate-500">Companion</p>
-          <p className="text-lg font-semibold text-white">Mission Control</p>
-        </div>
-      </div>
-      <nav className="space-y-2 text-sm">
-        {navigationItems.map((link) => {
-          const Icon = getNavigationIcon(link.key);
+        <nav className="space-y-2 text-sm">
+          {navigationItems.map((link) => {
+            const Icon = getNavigationIcon(link.key);
           const accent = accentStyles[link.accent] ?? accentStyles.cobalt;
           return (
             <NavLink
@@ -70,9 +74,9 @@ const Sidebar = () => (
                     <Icon className="h-5 w-5" aria-hidden />
                   </span>
                   <div className="flex flex-1 flex-col">
-                    <span className="text-base font-semibold tracking-tight">{link.label}</span>
+                    <span className="text-base font-semibold tracking-tight">{t(link.label)}</span>
                     <span className="text-xs uppercase tracking-wide text-slate-500 group-hover:text-slate-200">
-                      {link.description}
+                      {t(link.description)}
                     </span>
                   </div>
                   <span
@@ -88,12 +92,11 @@ const Sidebar = () => (
       </nav>
     </div>
     <div className="rounded-3xl border border-white/10 bg-white/5 p-5 text-xs text-slate-300">
-      <p className="text-sm font-semibold text-white">Próximos releases</p>
-      <p className="mt-2 leading-relaxed">
-        Roadmap: Integración Jira bidireccional, métricas en tiempo real y automatizaciones de smoke nocturnas.
-      </p>
+      <p className="text-sm font-semibold text-white">{t('Próximos releases')}</p>
+      <p className="mt-2 leading-relaxed">{t('Roadmap: Integración Jira bidireccional, métricas en tiempo real y automatizaciones de smoke nocturnas.')}</p>
     </div>
-  </aside>
-);
+    </aside>
+  );
+};
 
 export default Sidebar;

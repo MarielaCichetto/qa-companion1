@@ -5,6 +5,7 @@ import { testCasesSeed } from '../data/testCases';
 import { taskBoardSeed } from '../data/tasks';
 import { userStoriesSeed } from '../data/userStories';
 import { coverageSeed, kpiSeed, qualityPulseSeed, velocityTrendSeed } from '../data/dashboard';
+import { taskService } from '../services/taskService';
 
 const defaultReports = [
   {
@@ -23,10 +24,85 @@ const defaultReports = [
   }
 ];
 
+const taskStatuses = ['todo', 'inProgress', 'done'];
+
+const seedTasks = taskBoardSeed.columnOrder.flatMap((columnId) =>
+  taskBoardSeed.columns[columnId].items.map((item, index) => ({
+    id: item.id,
+    title: item.title,
+    description: item.description,
+    status: columnId,
+    priority: item.priority,
+    owner: item.owner,
+    tags: item.tags ?? [],
+    estimate: item.estimate,
+    orderIndex: index + 1
+  }))
+);
+
+const buildBoardFromTasks = (tasks = []) => {
+  const board = {
+    columnOrder: [...taskBoardSeed.columnOrder],
+    columns: taskBoardSeed.columnOrder.reduce((acc, columnId) => {
+      const seedColumn = taskBoardSeed.columns[columnId];
+      acc[columnId] = { ...seedColumn, items: [] };
+      return acc;
+    }, {})
+  };
+
+  tasks.forEach((task) => {
+    const columnId = taskStatuses.includes(task.status) ? task.status : 'todo';
+    board.columns[columnId].items.push({
+      id: task.id,
+      title: task.title,
+      description: task.description,
+      priority: task.priority,
+      owner: task.owner,
+      tags: Array.isArray(task.tags) ? task.tags : task.tags ? String(task.tags).split(',').filter(Boolean) : [],
+      estimate: task.estimate,
+      orderIndex: task.orderIndex ?? 0
+    });
+  });
+
+  board.columnOrder.forEach((columnId) => {
+    board.columns[columnId].items.sort((a, b) => (a.orderIndex ?? 0) - (b.orderIndex ?? 0));
+  });
+
+  return board;
+};
+
+const flattenBoard = (board) =>
+  board.columnOrder.flatMap((columnId) =>
+    board.columns[columnId].items.map((item, index) => ({
+      id: item.id,
+      title: item.title,
+      description: item.description,
+      status: columnId,
+      priority: item.priority,
+      owner: item.owner,
+      tags: item.tags ?? [],
+      estimate: item.estimate,
+      orderIndex: index + 1
+    }))
+  );
+
+const cloneBoard = (board) => ({
+  columnOrder: [...board.columnOrder],
+  columns: board.columnOrder.reduce((acc, columnId) => {
+    const column = board.columns[columnId];
+    acc[columnId] = {
+      ...column,
+      items: column.items.map((item) => ({ ...item }))
+    };
+    return acc;
+  }, {})
+});
+
 const generateId = (prefix) => `${prefix}-${nanoid(6).toUpperCase()}`;
 
 export const useQAStore = create((set, get) => ({
   loading: true,
+  syncError: null,
   kpis: kpiSeed,
   velocityTrend: velocityTrendSeed,
   coverage: coverageSeed,
@@ -34,11 +110,27 @@ export const useQAStore = create((set, get) => ({
   userStories: userStoriesSeed,
   testCases: testCasesSeed,
   bugs: bugsSeed,
-  taskBoard: taskBoardSeed,
+  taskBoard: buildBoardFromTasks(seedTasks),
+  tasks: seedTasks,
   reports: defaultReports,
 
-  initialize: () => {
+  initialize: async () => {
+    if (!get().loading) return;
+    await get().refreshTasks(true);
     set({ loading: false });
+  },
+
+  refreshTasks: async (fromInit = false) => {
+    try {
+      const tasks = await taskService.fetchTasks();
+      set({ taskBoard: buildBoardFromTasks(tasks), tasks, syncError: null });
+    } catch (error) {
+      console.warn('Falling back to seed tasks', error);
+      if (fromInit && !get().tasks?.length) {
+        set({ taskBoard: buildBoardFromTasks(seedTasks), tasks: seedTasks });
+      }
+      set({ syncError: 'tasks' });
+    }
   },
 
   addUserStory: (story) =>
@@ -96,64 +188,61 @@ export const useQAStore = create((set, get) => ({
       )
     })),
 
-  createTaskCard: (columnId, card) =>
-    set((state) => ({
-      taskBoard: {
-        ...state.taskBoard,
-        columns: {
-          ...state.taskBoard.columns,
-          [columnId]: {
-            ...state.taskBoard.columns[columnId],
-            items: [
-              ...state.taskBoard.columns[columnId].items,
-              { ...card, id: card.id || generateId('CARD') }
-            ]
-          }
-        }
-      }
-    })),
-
-  deleteTaskCard: (columnId, cardId) =>
-    set((state) => ({
-      taskBoard: {
-        ...state.taskBoard,
-        columns: {
-          ...state.taskBoard.columns,
-          [columnId]: {
-            ...state.taskBoard.columns[columnId],
-            items: state.taskBoard.columns[columnId].items.filter((item) => item.id !== cardId)
-          }
-        }
-      }
-    })),
-
-  moveTaskCard: ({ source, destination }) => {
-    if (!destination) return;
-
-    const state = get();
-    const sourceColumn = state.taskBoard.columns[source.droppableId];
-    const destColumn = state.taskBoard.columns[destination.droppableId];
-    const sourceItems = Array.from(sourceColumn.items);
-    const [moved] = sourceItems.splice(source.index, 1);
-    const destinationItems = Array.from(destColumn.items);
-    destinationItems.splice(destination.index, 0, moved);
-
-    set({
-      taskBoard: {
-        ...state.taskBoard,
-        columns: {
-          ...state.taskBoard.columns,
-          [source.droppableId]: {
-            ...sourceColumn,
-            items: sourceItems
-          },
-          [destination.droppableId]: {
-            ...destColumn,
-            items: destinationItems
-          }
-        }
-      }
+  createTaskCard: async (columnId, card) => {
+    const payload = {
+      title: card.title,
+      description: card.description,
+      status: columnId,
+      priority: card.priority,
+      owner: card.owner,
+      tags: card.tags ?? [],
+      estimate: card.estimate
+    };
+    const created = await taskService.createTask(payload);
+    set((state) => {
+      const tasks = [...state.tasks, created];
+      return { taskBoard: buildBoardFromTasks(tasks), tasks, syncError: null };
     });
+    return created;
+  },
+
+  updateTaskCard: async (taskId, updates) => {
+    const updated = await taskService.updateTask(taskId, updates);
+    set((state) => {
+      const tasks = state.tasks.map((task) => (task.id === taskId ? { ...task, ...updated } : task));
+      return { taskBoard: buildBoardFromTasks(tasks), tasks, syncError: null };
+    });
+    return updated;
+  },
+
+  deleteTaskCard: async (taskId) => {
+    await taskService.deleteTask(taskId);
+    set((state) => {
+      const tasks = state.tasks.filter((task) => task.id !== taskId);
+      return { taskBoard: buildBoardFromTasks(tasks), tasks };
+    });
+  },
+
+  moveTaskCard: async ({ source, destination }) => {
+    if (!destination) return;
+    const previous = get();
+    const boardCopy = cloneBoard(previous.taskBoard);
+    const sourceColumn = boardCopy.columns[source.droppableId];
+    const destColumn = boardCopy.columns[destination.droppableId];
+    const [moved] = sourceColumn.items.splice(source.index, 1);
+    destColumn.items.splice(destination.index, 0, moved);
+
+    const stagedTasks = flattenBoard(boardCopy);
+    set({ taskBoard: boardCopy, tasks: stagedTasks });
+
+    try {
+      const updates = stagedTasks.map((task) => ({ id: task.id, status: task.status, orderIndex: task.orderIndex }));
+      const tasks = await taskService.reorderTasks(updates);
+      set({ taskBoard: buildBoardFromTasks(tasks), tasks, syncError: null });
+    } catch (error) {
+      console.error('Failed to persist task reorder', error);
+      set({ taskBoard: buildBoardFromTasks(previous.tasks), tasks: previous.tasks, syncError: 'tasks' });
+    }
   },
 
   addReport: (report) =>

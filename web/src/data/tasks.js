@@ -11,7 +11,8 @@ export const taskBoardSeed = {
           description: 'Crear checklist de 25 casos críticos para app iOS',
           priority: 'Alta',
           owner: 'Lucía',
-          estimate: '5h'
+          estimate: '5h',
+          tags: ['mobile', 'smoke']
         },
         {
           id: 'card-2',
@@ -19,7 +20,8 @@ export const taskBoardSeed = {
           description: 'Sembrar órdenes mockeadas en entorno QA',
           priority: 'Media',
           owner: 'Marcos',
-          estimate: '3h'
+          estimate: '3h',
+          tags: ['pagos', 'datos']
         }
       ]
     },
@@ -34,7 +36,8 @@ export const taskBoardSeed = {
           description: 'Migrar colecciones Postman a Newman pipeline',
           priority: 'Alta',
           owner: 'Paula',
-          estimate: '8h'
+          estimate: '8h',
+          tags: ['api', 'automatización']
         }
       ]
     },
@@ -49,7 +52,8 @@ export const taskBoardSeed = {
           description: 'Actualizar pasos y datos para flujo feliz y edge',
           priority: 'Media',
           owner: 'Emilio',
-          estimate: '2h'
+          estimate: '2h',
+          tags: ['checkout', 'test cases']
         }
       ]
     }

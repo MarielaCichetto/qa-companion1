@@ -4,6 +4,8 @@ import morgan from 'morgan';
 import { initDb } from './models/database.js';
 import testCaseRoutes from './routes/testCases.js';
 import bugRoutes from './routes/bugs.js';
+import authRoutes from './routes/auth.js';
+import taskRoutes from './routes/tasks.js';
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -18,6 +20,8 @@ app.get('/api/health', (_req, res) => {
 
 app.use('/api/test-cases', testCaseRoutes);
 app.use('/api/bugs', bugRoutes);
+app.use('/api/auth', authRoutes);
+app.use('/api/tasks', taskRoutes);
 
 initDb().then(() => {
   app.listen(PORT, () => {

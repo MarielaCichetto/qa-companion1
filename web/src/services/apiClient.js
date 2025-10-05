@@ -6,7 +6,29 @@ const apiClient = axios.create({
 
 // Attach interceptors to centralize headers/auth when login implemented.
 apiClient.interceptors.request.use((config) => {
-  // TODO: Attach auth token when auth module is built.
+  try {
+    const persistedAuth = localStorage.getItem('qa-companion-auth');
+    if (persistedAuth) {
+      const { state } = JSON.parse(persistedAuth);
+      const token = state?.token;
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
+    }
+  } catch (error) {
+    console.warn('Unable to read auth token', error);
+  }
+  try {
+    const persistedI18n = localStorage.getItem('qa-companion-i18n');
+    if (persistedI18n) {
+      const { state } = JSON.parse(persistedI18n);
+      if (state?.language) {
+        config.headers['Accept-Language'] = state.language;
+      }
+    }
+  } catch (error) {
+    console.warn('Unable to attach language header', error);
+  }
   return config;
 });
 

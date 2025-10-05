@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import StatusPill from '../components/StatusPill';
+import { useTranslation } from '../hooks/useTranslation';
 
 const sampleResults = [
   { id: 1, testCase: 'TC-001', status: 'Passed', owner: 'Lucía' },
@@ -11,6 +12,7 @@ const SqlQueriesPage = () => {
   const [query, setQuery] = useState('SELECT id, title, status FROM test_cases LIMIT 10;');
   const [results, setResults] = useState(sampleResults);
   const [executions, setExecutions] = useState(0);
+  const { t } = useTranslation();
 
   const runQuery = (event) => {
     event.preventDefault();
@@ -21,9 +23,9 @@ const SqlQueriesPage = () => {
   return (
     <section className="space-y-8">
       <header className="rounded-3xl border border-white/10 bg-white/10 p-6 backdrop-blur-lg">
-        <h2 className="text-2xl font-semibold text-white">Mini SQL Client</h2>
+        <h2 className="text-2xl font-semibold text-white">{t('Mini SQL Client')}</h2>
         <p className="mt-2 max-w-3xl text-sm text-slate-300">
-          Ejecuta consultas SELECT de forma segura contra entornos de prueba. Próximamente podrás crear vistas guardadas y compartir snippets con tu equipo.
+          {t('Ejecuta consultas SELECT de forma segura contra entornos de prueba. Próximamente podrás crear vistas guardadas y compartir snippets con tu equipo.')}
         </p>
       </header>
 
@@ -31,10 +33,10 @@ const SqlQueriesPage = () => {
         <form onSubmit={runQuery} className="space-y-5 rounded-3xl border border-white/10 bg-white/10 p-6 backdrop-blur-lg">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-xs uppercase tracking-wide text-white/60">Consulta activa</p>
-              <h3 className="text-lg font-semibold text-white">Exploración de test cases</h3>
+              <p className="text-xs uppercase tracking-wide text-white/60">{t('Consulta activa')}</p>
+              <h3 className="text-lg font-semibold text-white">{t('Exploración de test cases')}</h3>
             </div>
-            <StatusPill label={`Execuciones ${executions}`} variant="info" />
+            <StatusPill label={`${t('Ejecuciones')} ${executions}`} variant="info" />
           </div>
           <textarea
             value={query}
@@ -44,27 +46,27 @@ const SqlQueriesPage = () => {
           />
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="text-xs text-white/70">
-              Usa solo SELECT para mantener la base segura. Integra un proxy backend para queries parametrizadas en futuras versiones.
+              {t('Usa solo SELECT para mantener la base segura. Integra un proxy backend para queries parametrizadas en futuras versiones.')}
             </div>
             <button className="rounded-2xl bg-gradient-to-r from-emerald-400 via-aurora to-ocean px-6 py-2 text-sm font-semibold text-white shadow-glow transition hover:shadow-lg">
-              Ejecutar consulta
+              {t('Ejecutar consulta')}
             </button>
           </div>
         </form>
 
         <aside className="space-y-4 rounded-3xl border border-white/10 bg-white/10 p-6 backdrop-blur-lg">
           <div className="flex items-center justify-between">
-            <h3 className="text-lg font-semibold text-white">Resultados</h3>
-            <StatusPill label={`${results.length} filas`} variant="success" />
+            <h3 className="text-lg font-semibold text-white">{t('Resultados')}</h3>
+            <StatusPill label={`${results.length} ${t('filas')}`} variant="success" />
           </div>
           <div className="overflow-x-auto rounded-2xl border border-white/10">
             <table className="min-w-full divide-y divide-white/10 text-sm text-slate-100">
               <thead className="bg-white/5 text-xs uppercase tracking-wide text-slate-300">
                 <tr>
                   <th className="px-4 py-3 text-left font-medium">ID</th>
-                  <th className="px-4 py-3 text-left font-medium">Test Case</th>
-                  <th className="px-4 py-3 text-left font-medium">Estado</th>
-                  <th className="px-4 py-3 text-left font-medium">Owner</th>
+                  <th className="px-4 py-3 text-left font-medium">{t('Test Case')}</th>
+                  <th className="px-4 py-3 text-left font-medium">{t('Estado')}</th>
+                  <th className="px-4 py-3 text-left font-medium">{t('Owner')}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/5">
@@ -74,7 +76,7 @@ const SqlQueriesPage = () => {
                     <td className="px-4 py-3">{row.testCase}</td>
                     <td className="px-4 py-3">
                       <StatusPill
-                        label={row.status}
+                        label={t(row.status)}
                         variant={row.status === 'Passed' ? 'success' : row.status === 'Failed' ? 'danger' : 'warning'}
                       />
                     </td>
@@ -85,11 +87,11 @@ const SqlQueriesPage = () => {
             </table>
           </div>
           <div className="rounded-2xl border border-white/10 bg-white/5 p-4 text-xs text-white/70">
-            <p className="font-semibold text-white">Siguiente iteración</p>
+            <p className="font-semibold text-white">{t('Siguiente iteración')}</p>
             <ul className="mt-2 list-disc space-y-2 pl-4">
-              <li>Historial de queries con favoritos.</li>
-              <li>Visualización tipo tabla dinámica y exportación directa.</li>
-              <li>Validaciones automáticas de resultados clave.</li>
+              <li>{t('Historial de queries con favoritos.')}</li>
+              <li>{t('Visualización tipo tabla dinámica y exportación directa.')}</li>
+              <li>{t('Validaciones automáticas de resultados clave.')}</li>
             </ul>
           </div>
         </aside>

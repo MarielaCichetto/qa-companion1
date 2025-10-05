@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import StatusPill from '../components/StatusPill';
+import { useTranslation } from '../hooks/useTranslation';
 
 const initialChecklists = [
   {
@@ -37,6 +38,7 @@ const initialChecklists = [
 const ChecklistsPage = () => {
   const [checklists, setChecklists] = useState(initialChecklists);
   const [selected, setSelected] = useState(initialChecklists[0].id);
+  const { t } = useTranslation();
 
   const activeChecklist = useMemo(
     () => checklists.find((checklist) => checklist.id === selected) ?? checklists[0],
@@ -65,15 +67,15 @@ const ChecklistsPage = () => {
   return (
     <section className="space-y-8">
       <header className="rounded-3xl border border-white/10 bg-white/10 p-6 backdrop-blur-lg">
-        <h2 className="text-2xl font-semibold text-white">Checklists dinámicos</h2>
+        <h2 className="text-2xl font-semibold text-white">{t('Checklists dinámicos')}</h2>
         <p className="mt-2 max-w-3xl text-sm text-slate-300">
-          Organiza tus listas de smoke, regresión y exploratorias con una visual moderna. Próximamente podrás colaborar en tiempo real con otros analistas.
+          {t('Organiza tus listas de smoke, regresión y exploratorias con una visual moderna. Próximamente podrás colaborar en tiempo real con otros analistas.')}
         </p>
       </header>
 
       <div className="grid gap-6 lg:grid-cols-3">
         <aside className="space-y-4 rounded-3xl border border-white/10 bg-white/10 p-6 backdrop-blur-lg">
-          <h3 className="text-lg font-semibold text-white">Tus checklists</h3>
+          <h3 className="text-lg font-semibold text-white">{t('Tus checklists')}</h3>
           <div className="space-y-3">
             {checklists.map((checklist) => {
               const total = checklist.items.length;
@@ -99,7 +101,7 @@ const ChecklistsPage = () => {
             })}
           </div>
           <button className="w-full rounded-2xl border border-dashed border-white/20 px-4 py-3 text-sm font-semibold text-slate-200 transition hover:border-white/40 hover:text-white">
-            + Crear checklist (próximamente)
+            {t('+ Crear checklist (próximamente)')}
           </button>
         </aside>
 
@@ -111,7 +113,7 @@ const ChecklistsPage = () => {
                 <p className="text-sm text-slate-300">{activeChecklist.description}</p>
               </div>
               <div className="min-w-[200px] rounded-2xl border border-white/10 bg-white/5 p-4 text-right">
-                <p className="text-xs uppercase tracking-wide text-white/60">Progreso</p>
+                <p className="text-xs uppercase tracking-wide text-white/60">{t('Progreso')}</p>
                 <p className="mt-1 text-3xl font-semibold text-white">{completion}%</p>
                 <div className="mt-3 h-2 rounded-full bg-white/10">
                   <div
@@ -144,14 +146,14 @@ const ChecklistsPage = () => {
                     </button>
                     <span className={`${item.checked ? 'line-through text-white/70' : 'text-white'}`}>{item.label}</span>
                   </div>
-                  <StatusPill label={item.checked ? 'Done' : 'Pending'} variant={item.checked ? 'success' : 'info'} />
+                  <StatusPill label={item.checked ? t('Done') : t('Pending')} variant={item.checked ? 'success' : 'info'} />
                 </li>
               ))}
             </ul>
             <div className="rounded-2xl border border-white/10 bg-gradient-to-r from-aurora/20 via-blossom/20 to-ocean/20 p-5 text-sm text-white/80">
-              <p className="font-semibold text-white">Siguiente evolución</p>
+              <p className="font-semibold text-white">{t('Siguiente evolución')}</p>
               <p className="mt-2">
-                Agrega recordatorios automáticos, adjunta notas por ítem y comparte listas con stakeholders directamente desde la app.
+                {t('Agrega recordatorios automáticos, adjunta notas por ítem y comparte listas con stakeholders directamente desde la app.')}
               </p>
             </div>
           </article>

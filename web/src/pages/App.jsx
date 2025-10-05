@@ -8,74 +8,47 @@ import TasksPage from './TasksPage';
 import ReportsPage from './ReportsPage';
 import UserStoriesPage from './UserStoriesPage';
 import SettingsPage from './SettingsPage';
+import { useAuthStore } from '../store/useAuthStore';
+
+const FullScreenLoader = () => (
+  <div className="flex min-h-screen items-center justify-center bg-carbon text-slate-200">
+    <div className="h-12 w-12 animate-spin rounded-full border-4 border-cobalt/40 border-t-neon" aria-label="Loading" />
+  </div>
+);
+
+const RequireAuth = ({ children }) => {
+  const { user, hydrated } = useAuthStore((state) => ({ user: state.user, hydrated: state.hydrated }));
+
+  if (!hydrated) {
+    return <FullScreenLoader />;
+  }
+
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
+
+  return children;
+};
 
 const App = () => (
   <Routes>
     <Route path="/login" element={<LoginPage />} />
     <Route
-      path="/"
       element={
-        <Layout>
-          <DashboardPage />
-        </Layout>
+        <RequireAuth>
+          <Layout />
+        </RequireAuth>
       }
-    />
-    <Route
-      path="/dashboard"
-      element={
-        <Layout>
-          <DashboardPage />
-        </Layout>
-      }
-    />
-    <Route
-      path="/user-stories"
-      element={
-        <Layout>
-          <UserStoriesPage />
-        </Layout>
-      }
-    />
-    <Route
-      path="/test-cases"
-      element={
-        <Layout>
-          <TestCasesPage />
-        </Layout>
-      }
-    />
-    <Route
-      path="/bugs"
-      element={
-        <Layout>
-          <BugsPage />
-        </Layout>
-      }
-    />
-    <Route
-      path="/tasks"
-      element={
-        <Layout>
-          <TasksPage />
-        </Layout>
-      }
-    />
-    <Route
-      path="/reports"
-      element={
-        <Layout>
-          <ReportsPage />
-        </Layout>
-      }
-    />
-    <Route
-      path="/settings"
-      element={
-        <Layout>
-          <SettingsPage />
-        </Layout>
-      }
-    />
+    >
+      <Route index element={<DashboardPage />} />
+      <Route path="/dashboard" element={<DashboardPage />} />
+      <Route path="/user-stories" element={<UserStoriesPage />} />
+      <Route path="/test-cases" element={<TestCasesPage />} />
+      <Route path="/bugs" element={<BugsPage />} />
+      <Route path="/tasks" element={<TasksPage />} />
+      <Route path="/reports" element={<ReportsPage />} />
+      <Route path="/settings" element={<SettingsPage />} />
+    </Route>
     <Route path="*" element={<Navigate to="/login" replace />} />
   </Routes>
 );
